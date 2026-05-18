@@ -1,0 +1,34 @@
+{application, hecate_app_ragd, [
+    {description, "RAG plugin daemon (root OTP app)"},
+    {vsn, "0.1.0"},
+    {registered, []},
+    {mod, {hecate_app_ragd_app, []}},
+    {applications, [
+        kernel,
+        stdlib,
+        crypto,
+        cowboy,
+        reckon_db,
+        reckon_gater,
+        evoq,
+        reckon_evoq,
+        esqlite,
+        hecate_sdk,
+        hecate_vector,
+        hecate_embed,
+        rag,
+        embed_corpus,
+        refresh_corpus,
+        serve_retrieval,
+        project_chunks,
+        project_sources,
+        query_chunks,
+        query_sources
+    ]},
+    {env, []},
+    {modules, []},
+    {licenses, ["Apache-2.0"]},
+    {links, [
+        {"Codeberg", "https://codeberg.org/hecate-apps/hecate-app-rag"}
+    ]}
+]}.

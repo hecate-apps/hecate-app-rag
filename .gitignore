@@ -1,0 +1,23 @@
+_build/
+_checkouts/
+.rebar3/
+erl_crash.dump
+rebar3.crashdump
+
+# Node / SvelteKit
+node_modules/
+.svelte-kit/
+build/
+dist/
+*.tsbuildinfo
+
+# Local config
+*.local
+.env
+.env.local
+
+# OS / editor noise
+.DS_Store
+.idea/
+*.swp
+__pycache__/
