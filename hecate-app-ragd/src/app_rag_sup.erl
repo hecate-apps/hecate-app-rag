@@ -1,10 +1,6 @@
-%%% @doc Top-level supervisor for the RAG plugin daemon.
-%%%
-%%% The umbrella apps (embed_corpus, refresh_corpus, ...) each bring
-%%% their own supervisor. This one only owns plugin-wide infrastructure:
-%%% API route registration, the SSE event bridge, and a singleton
-%%% `app_ragd_event_bridge` that forwards every domain event to the
-%%% SSE handler.
+%%% @doc Plugin supervision tree. Empty for now — the plugin holds no
+%%% long-running state. Kept so the plugin contract gets a `pid()`
+%%% to track.
 -module(app_rag_sup).
 -behaviour(supervisor).
 
@@ -20,22 +16,4 @@ init([]) ->
         intensity => 10,
         period    => 10
     },
-    Children = [
-        #{
-            id       => app_ragd_event_bridge,
-            start    => {app_ragd_event_bridge, start_link, []},
-            restart  => permanent,
-            shutdown => 5000,
-            type     => worker,
-            modules  => [app_ragd_event_bridge]
-        },
-        #{
-            id       => app_ragd_web_events,
-            start    => {app_ragd_web_events, start_link, []},
-            restart  => permanent,
-            shutdown => 5000,
-            type     => worker,
-            modules  => [app_ragd_web_events]
-        }
-    ],
-    {ok, {SupFlags, Children}}.
+    {ok, {SupFlags, []}}.

@@ -1,6 +1,6 @@
 {application, hecate_app_ragd, [
-    {description, "RAG plugin daemon (root OTP app)"},
-    {vsn, "0.1.0"},
+    {description, "Thin plugin half of hecate-app-rag: forwards HTTP to hecate-rag over the mesh"},
+    {vsn, "0.2.0"},
     {registered, []},
     {mod, {hecate_app_ragd_app, []}},
     {applications, [
@@ -8,24 +8,14 @@
         stdlib,
         crypto,
         cowboy,
-        reckon_db,
-        reckon_gater,
-        evoq,
-        reckon_evoq,
-        esqlite,
+        jsx,
         hecate_sdk,
-        hecate_vector,
-        hecate_embed,
-        rag,
-        embed_corpus,
-        refresh_corpus,
-        serve_retrieval,
-        project_chunks,
-        project_sources,
-        query_chunks,
-        query_sources
+        macula
     ]},
-    {env, []},
+    {env, [
+        {service_name, <<"hecate-rag">>},
+        {rpc_timeout_ms, 5000}
+    ]},
     {modules, []},
     {licenses, ["Apache-2.0"]},
     {links, [

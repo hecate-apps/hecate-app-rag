@@ -1,7 +1,4 @@
-%%% @doc OTP application entry for the root umbrella app.
-%%%
-%%% Delegates supervision to `app_rag_sup`, which then mounts the
-%%% domain apps and the HTTP layer.
+%%% @doc OTP application entry for the slim hecate-app-rag plugin.
 -module(hecate_app_ragd_app).
 -behaviour(application).
 

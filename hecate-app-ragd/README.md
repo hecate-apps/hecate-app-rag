@@ -1,51 +1,66 @@
 # hecate-app-ragd
 
-Erlang/OTP backend of the `hecate-app-rag` Hecate plugin.
+Thin Erlang plugin half of `hecate-app-rag`. Lives in `hecate-daemon`
+as an in-VM plugin. Two jobs:
 
-In-VM plugin: loaded by `hecate-daemon` into its own BEAM. Implements
-the `hecate_plugin` behaviour. Stores domain events in its own
-`rag_store` (ReckonDB), projects them into SQLite read models, exposes
-a Cowboy HTTP API and an SSE event stream under
-`/apps/hecate-app-rag/`.
+1. Serve the Svelte custom-element bundle built by `-ragw`.
+2. Forward `/apps/hecate-app-rag/api/*` HTTP calls to `hecate-rag`
+   (the realm service) via the Macula mesh.
 
-## Umbrella layout
+Holds no domain state, runs no projections, owns no event store.
+**All real work lives in [`hecate-services/hecate-rag`](https://codeberg.org/hecate-services/hecate-rag).**
 
-| App | Department | Purpose |
-|-----|-----------|---------|
-| `rag` | shared | root supervisor + notation shared by sibling apps |
-| `embed_corpus` | CMD | ingest documents, chunk them, embed, prune |
-| `refresh_corpus` | CMD | watch corpus dir, schedule re-embeds |
-| `serve_retrieval` | CMD | answer queries, rerank, optionally federate |
-| `project_chunks` | PRJ | event → chunks read model |
-| `project_sources` | PRJ | event → sources read model |
-| `query_chunks` | QRY | chunk lookup + semantic search |
-| `query_sources` | QRY | source metadata lookups |
+## Why a plugin at all
 
-Each CMD app contains vertical-slice desks (e.g. `ingest_document/`,
-`embed_document/`). Each desk co-locates its command, event, handler,
-and API handler.
+`hecate-rag` is a realm-bound service running on infrastructure
+nodes. Users on laptops can't reach it directly — they go through
+their local `hecate-daemon`. This plugin is the bridge:
 
-## Regenerate slice stubs
-
-The scaffold uses a small Python generator. Re-running it overwrites
-the slice files; non-generated entry points (app.src, _app.erl, _sup.erl)
-are written once and left alone afterwards.
-
-```bash
-scripts/scaffold-slices.py
 ```
+Browser
+  │ HTTP
+  ▼
+hecate-daemon
+  └── hecate-app-ragd (this plugin)
+        │ macula:call(local-station, "hecate-rag.<method>", Params)
+        ▼
+macula-station
+        │ QUIC routed
+        ▼
+infrastructure node running hecate-rag
+```
+
+## Layout
+
+```
+src/
+├── hecate_app_ragd.app.src
+├── hecate_app_ragd_app.erl
+├── app_rag.erl              (hecate_plugin callback module)
+├── app_rag_sup.erl
+├── app_rag_api.erl          (Cowboy → macula:call forwarder)
+└── app_rag_web.erl          (static handler for the -ragw bundle)
+```
+
+That's it. No umbrella, no apps/, no slices. The slices live where
+the work happens — in `hecate-services/hecate-rag`.
 
 ## Build
 
 ```bash
 rebar3 compile
-rebar3 ct
 ```
 
-## Run
+For a full plugin tarball, build `-ragw` first then bundle:
 
 ```bash
-rebar3 shell
+cd ../hecate-app-ragw
+npm run build:lib                    # → ../hecate-app-ragd/priv/web/
+
+cd ../hecate-app-ragd
+rebar3 as prod tar
 ```
 
-Then hit `http://localhost:8123/apps/hecate-app-rag/api/health`.
+## License
+
+Apache-2.0.

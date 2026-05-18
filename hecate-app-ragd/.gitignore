@@ -6,5 +6,3 @@ erl_crash.dump
 rebar3.crashdump
 
 priv/web/
-priv/data/
-priv/index/

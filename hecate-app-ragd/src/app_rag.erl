@@ -1,8 +1,8 @@
-%%% @doc Plugin callback module — implements the hecate_plugin behaviour.
+%%% @doc hecate_plugin callback module.
 %%%
-%%% `hecate-daemon` calls into this module to start, stop, route, and
-%%% introspect the plugin. The actual supervision tree lives under
-%%% `app_rag_sup`; this module is just the public contract.
+%%% The daemon calls this to start/stop the plugin and discover its
+%%% HTTP routes. Real RAG work happens in `hecate-services/hecate-rag`
+%%% on a realm infrastructure node; this module forwards there.
 -module(app_rag).
 
 -export([
@@ -16,14 +16,15 @@
 info() ->
     #{
         name        => <<"hecate-app-rag">>,
-        version     => <<"0.1.0">>,
-        description => <<"Local retrieval-augmented generation over the configured corpus">>,
-        callback_module => ?MODULE
+        version     => <<"0.2.0">>,
+        description => <<"User-facing surface for the realm's RAG service">>,
+        callback_module => ?MODULE,
+        backing_service => <<"hecate-rag">>
     }.
 
 -spec routes() -> [tuple()].
 routes() ->
-    app_ragd_api_routes:discover_routes().
+    app_rag_api:routes() ++ app_rag_web:routes().
 
 -spec start(map()) -> {ok, pid()} | {error, term()}.
 start(_Args) ->
