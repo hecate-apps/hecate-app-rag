@@ -6,6 +6,7 @@
   "description": "Local retrieval-augmented generation over the configured corpus",
   "callback_module": "app_rag",
   "plugin_type": "in_vm",
+  "release_profiles": ["in_vm", "standalone"],
   "tag": "rag-studio",
   "trust_level": "untrusted",
   "permissions": [],
